@@ -1,8 +1,11 @@
 class Config(object):
     maxCpu = 4
     maxRam = 8000
-    maxStorage = 10000
+    maxStorage = 15000
     maxVRam = 128
+    vmPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm"
+    systemsPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems"
+    exportPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\export\\"
     graphicsController = {"null":0, "vboxvga": 1, "vmsvga": 2, "vboxsvga": 3}
     networkAddapterType = {
         "Null": 0,

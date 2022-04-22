@@ -8,8 +8,11 @@ from unicodedata import name
 from app import vbox, vbmanager, vbmanagerInstance
 from app.config import Config
 
+def getExportedVM():
+    return [f for f in listdir(Config.exportPath) if isfile(join(Config.exportPath, f))]
+    
 def getOsList():
-    return [f for f in listdir("C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems") if isfile(join("C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems", f))]
+    return [f for f in listdir(Config.systemsPath) if isfile(join(Config.systemsPath, f))]
 
 def getListVM():
     return [m.name for m in vbox.machines]
@@ -21,7 +24,7 @@ def createVm(vmName,osType,cpuCore,ram,vRam,graphicsController,network,storageTy
     os.system('VBoxManage modifyvm {vmName} --nic1 {network}'.format(vmName=vmName, network=network))
     os.system('vboxmanage createhd --filename C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm\\{vmName}\\{storageName} --size {storageSize} --variant {storageType}'.format(vmName=vmName,storageName=storageName,storageSize=storageSize,storageType=storageType))
     os.system('vboxmanage storagectl {vmName} --name "{storageName}" --add sata --bootable {sotrageBootable}'.format(vmName=vmName, storageName=storageName, sotrageBootable=storageBootable))
-    os.system('vboxmanage storageattach {vmName} --storagectl "{storageName}" --port 0 --device 0 --type hdd --medium C:\\Users\\Gabichus\\Desktop\\Disertatie\vm\{storageName}.vdi'.format(vmName=vmName,storageName=storageName))
+    os.system('vboxmanage storageattach {vmName} --storagectl "{storageName}" --port 0 --device 0 --type hdd --medium C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm\\{vmName}\\{storageName}.vdi'.format(vmName=vmName,storageName=storageName))
     os.system('vboxmanage storagectl {vmName} --name "ide ctl" --add ide'.format(vmName=vmName))
     os.system('VBoxManage storageattach {vmName} --storagectl "ide ctl" --port 0  --device 0 --type dvddrive --medium C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems\\{osImageName}'.format(vmName=vmName,osImageName=osImageName))
     os.system('vboxmanage modifyvm {vmName} --vrde on'.format(vmName=vmName))
@@ -29,14 +32,13 @@ def createVm(vmName,osType,cpuCore,ram,vRam,graphicsController,network,storageTy
     # os.system('VBoxManage startvm {vmName} --type separate') #headless(hidden)/separete(gui)
 
 def deleteVm(vmName, delete=True):
-    #os.system('vboxmanage unregistervm {vmName} --delete'.format(vmName=vmName))
     vm = vbmanagerInstance.find_machine(vmName)
     if vm.state >= virtualbox.library.MachineState.running:
         session = virtualbox.Session()
         vm.lock_machine(session,virtualbox.library.LockType.shared)
         try:
-                progress = session.console.power_down()
-                progress.wait_for_completion(-1)
+            progress = session.console.power_down()
+            progress.wait_for_completion(-1)
         except Exception:
             print("Error powering off machine", file=sys.stderr)
         session.unlock_machine()
@@ -44,8 +46,6 @@ def deleteVm(vmName, delete=True):
             0.5
         )  # TODO figure out how to ensure session is really unlocked...
 
-    
-    settings_dir = os.path.dirname("C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm")
     if delete:
         option = virtualbox.library.CleanupMode.detach_all_return_hard_disks_only
     else:
@@ -57,12 +57,14 @@ def deleteVm(vmName, delete=True):
         progress.wait_for_completion(-1)
         media = []
 
-    if delete and os.path.exists(settings_dir):
-            shutil.rmtree(settings_dir)
+def export(json_data):
+    vmName = json_data["vmName"]
+    vm = vbmanagerInstance.find_machine(vmName)
 
-
-def export(vmName):
-    os.system('vboxmanage export {vmName} -o C:\\Users\\Gabichus\\Desktop\\Disertatie\\export\\{vmName}.ova'.format(vmName=vmName))
+    appliance = vbox.create_appliance()
+    vm.export_to(appliance, vmName)
+    appliance.write('ovf-2.0', [virtualbox.library.ExportOptions.create_manifest], Config.exportPath+'{vmName}.ova'.format(vmName=vmName))
+    
 
 def modifyVM(json_data):
     
@@ -102,7 +104,7 @@ def clone(json_data):
     name = json_data["vmNameClone"]
     groups = []
     primary_group = ""
-    basefolder = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm"
+    basefolder = Config.vmPath
     mode = virtualbox.library.CloneMode.all_states
     create_flags = "UUID=%s" % uuidNumber
 
