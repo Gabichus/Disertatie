@@ -1,3 +1,5 @@
+gitignore
 /systems
 /vm
+/export
 /__pycache__
