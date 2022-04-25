@@ -6,6 +6,7 @@ vbox = virtualbox.VirtualBox()
 vbmanager = virtualbox.Manager()
 vbmanagerInstance = vbmanager.get_virtualbox()
 app = Flask(__name__)
+app.secret_key="..."
 api = Api(app)
 
 from app import routes

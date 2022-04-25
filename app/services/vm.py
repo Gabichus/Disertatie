@@ -1,7 +1,9 @@
 import time
 import uuid
+import pickle
 import virtualbox
 from os import listdir
+from flask import session
 from os.path import isfile, join
 from app import vbox, vbmanager, vbmanagerInstance
 from app.config import Config
@@ -84,10 +86,19 @@ def export(json_data):
     vmName = json_data["vmName"]
     vm = vbmanagerInstance.find_machine(vmName)
 
-    appliance = vbox.create_appliance()
-    vm.export_to(appliance, vmName)
-    progress = appliance.write('ovf-2.0', [virtualbox.library.ExportOptions.create_manifest], Config.exportPath+'{vmName}.ova'.format(vmName=vmName))
-    progress.wait_for_completion(-1)
+    try:
+        appliance = vbox.create_appliance()
+        vm.export_to(appliance, vmName)
+        progress = appliance.write('ovf-2.0', [virtualbox.library.ExportOptions.create_manifest], Config.exportPath+'{vmName}.ova'.format(vmName=vmName))
+        while(progress.percent < 20):
+            time.sleep(3)
+            session[vmName] = progress.percent
+        progress.cancel()
+    except Exception as e:
+        print(e)
+    finally:
+        progress.cancel()
+    #progress.wait_for_completion(-1)
     
 def importVM(json_data):
     appliance = vbox.create_appliance()

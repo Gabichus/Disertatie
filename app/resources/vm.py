@@ -87,9 +87,4 @@ class VM(Resource):
         json_data = request.get_json(force=True)
         
         if json_data["vmName"] in getListVM() and json_data["vmName"] is not None:
-            modifyVM(json_data)
-
-        
-
-        
-        
+            modifyVM(json_data)  
