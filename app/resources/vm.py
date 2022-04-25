@@ -36,8 +36,8 @@ class VM(Resource):
         storageBootable = args['storageBootable']
         osImageName = args['osImageName']
 
-        if vmName in getListVM() or vmName is None:
-            return "vmName"
+        # if vmName in getListVM() or vmName is None:
+        #     return "vmName"
 
         if osType is None:
             return "osType"

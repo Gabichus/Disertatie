@@ -3,7 +3,7 @@ class Config(object):
     maxRam = 8000
     maxStorage = 15000
     maxVRam = 128
-    vmPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm"
+    vmPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm\\"
     systemsPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems"
     exportPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\export\\"
     graphicsController = {"null":0, "vboxvga": 1, "vmsvga": 2, "vboxsvga": 3}
@@ -34,4 +34,15 @@ class Config(object):
             "KeepDiskNames": 4,
             "KeepHwUUIDs": 5
     }
-    storageType = ["standard","fixed"]
+    storageType = {
+        "standard":0,
+        "vmdksplit2g":1,
+        "vmdkrawdisk":2,
+        "vmdkstreamoptimized":4,
+        "vmdkesx":8,
+        "vdizeroexpand":256,
+        "fixed": 65536,
+        "diff": 131072,
+        "formatted":536870912,
+        "nocreatedir":1073741824
+    }

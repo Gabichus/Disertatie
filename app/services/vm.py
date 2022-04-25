@@ -5,7 +5,7 @@ from os import listdir
 from os.path import isfile, join
 from app import vbox, vbmanager, vbmanagerInstance
 from app.config import Config
-# from app.services.disk import createHardDisk, attachDisk, createOpticalDisk
+from app.services.disk import createHardDisk, attachDisk, createOpticalDisk
 
 def getExportedVM():
     return [f for f in listdir(Config.exportPath) if isfile(join(Config.exportPath, f))]
@@ -36,9 +36,9 @@ def createVM(json_data):
     vm.add_storage_controller("IDE", virtualbox.library.StorageBus.ide)
     vbox.register_machine(vm)
 
-    # disk = createHardDisk(vmName=json_data["vmName"],storageSize=json_data["storageSize"],storageType=json_data["storageType"])
-    # attachDisk(vmName=json_data["vmName"],disk=disk)
-    # createOpticalDisk(json_data["vmName"],json_data["osImageName"])
+    disk = createHardDisk(vmName=json_data["vmName"],storageSize=json_data["storageSize"],storageType=json_data["storageType"])
+    attachDisk(vmName=json_data["vmName"],disk=disk)
+    createOpticalDisk(json_data["vmName"],json_data["osImageName"])
     
 
 # def createVm(vmName,osType,cpuCore,ram,vRam,graphicsController,network,storageType,storageSize,storageName,storageBootable,osImageName):
