@@ -81,6 +81,7 @@ def deleteVm(vmName, delete=True):
     if delete:
         progress = vm.delete_config(media)
         progress.wait_for_completion(-1)
+    media = []
 
 def export(json_data):
     vmName = json_data["vmName"]
@@ -90,10 +91,10 @@ def export(json_data):
         appliance = vbox.create_appliance()
         vm.export_to(appliance, vmName)
         progress = appliance.write('ovf-2.0', [virtualbox.library.ExportOptions.create_manifest], Config.exportPath+'{vmName}.ova'.format(vmName=vmName))
-        while(progress.percent < 20):
-            time.sleep(3)
-            session[vmName] = progress.percent
-        progress.cancel()
+        # while(progress.percent < 20):
+        #     time.sleep(3)
+        #     session[vmName] = progress.percent
+        # progress.cancel()
     except Exception as e:
         print(e)
     finally:
