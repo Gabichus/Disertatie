@@ -1,90 +1,72 @@
-from app import app
-from flask import Flask, jsonify, request
-from flask_restful import Api, Resource, reqparse, abort
+from flask import request
+from flask_restful import Resource
 from app.services.vm import getOsList, getListVM, createVM as createVmSerivce, deleteVm, modifyVM
 from app.config import Config
-
-parser = reqparse.RequestParser()
-parser.add_argument('vmName', type=str)
-parser.add_argument('osType', type=str)
-parser.add_argument('cpuCount', type=int)
-parser.add_argument('ram', type=int)
-parser.add_argument('vRam', type=int)
-parser.add_argument('graphicsController', type=str)
-parser.add_argument('network', type=str)
-parser.add_argument('storageType', type=str)
-parser.add_argument('storageSize', type=int)
-parser.add_argument('storageName', type=str)
-parser.add_argument('storageBootable', type=bool)
-parser.add_argument('osImageName', type=str)
 
 class VM(Resource):
     def post(self):
 
         json_data = request.get_json(force=True)
-        args = parser.parse_args()
 
-        vmName = args['vmName']
-        osType = args['osType']
-        cpuCount = args['cpuCount']
-        ram = args['ram']
-        vRam = args['vRam']
-        graphicsController = args['graphicsController']
-        network = args['network']
-        storageType = args['storageType']
-        storageSize = args['storageSize']
-        storageBootable = args['storageBootable']
-        osImageName = args['osImageName']
+        if json_data["vmName"] in getListVM() or json_data["vmName"] is None:
+            return {"error":"vmName already exist"},400
 
-        # if vmName in getListVM() or vmName is None:
-        #     return "vmName"
+        if json_data["osType"] is None:
+            return {"error":"osType parameter missing"},400
 
-        if osType is None:
-            return "osType"
+        if json_data["cpuCount"] is None or json_data["cpuCount"] > Config.maxCpu:
+            return {"error":"cpuCount parameter missing"},400
 
-        if cpuCount is None or cpuCount > Config.maxCpu:
-            return "cpuCount"
+        if json_data["ram"] is None or json_data["ram"] > Config.maxRam:
+            return {"error":"ram parameter missing or ram exceed limit"},400
 
-        if ram is None or ram > Config.maxRam:
-            return "ram"
+        if json_data["vRam"] is None:
+            return {"error":"vram parameter missing"},400
 
-        if vRam is None or vRam > Config.maxVRam:
-            return "vram"
+        if json_data["vRam"] > Config.maxVRam:
+            return {"error":"vram exceed limit"},400
 
-        if graphicsController is None and Config.graphicsController.get(graphicsController) is None:
-            return "graphicsController"
+        if json_data["graphicsController"] is None:
+            return {"error":"graphicsController parameter missing"},400
 
-        if Config.networkAddapter.get(network) is None:
-            return "network"
+        if Config.graphicsController.get(json_data["graphicsController"]) is None:
+            return {"error":"graphicsController type not found"},400
 
-        if Config.storageType.get(storageType) is None:
-            return "storageType"
+        if Config.networkAddapter.get(json_data["network"]) is None:
+            return {"error":"network type not found"},400
 
-        if storageSize is None or storageSize > Config.maxStorage:
-            return "storageSize"
+        if Config.storageType.get(json_data["storageType"]) is None:
+            return {"error":"storageType not found"},400
 
-        if not isinstance(storageBootable,bool):
-            return "storageBootable"
+        if json_data["storageSize"] is None or json_data["storageSize"] > Config.maxStorage:
+            return {"error":"storageSize exceed limit"},400
 
-        if osImageName not in getOsList():
-            return "osImageName"
-
-        storageBootable = "on" if storageBootable else "off"
+        if json_data["osImageName"] not in getOsList():
+            return {"error":"osImageName not found"},400
 
         createVmSerivce(json_data)
-       # createVmSerivce(vmName,osType,cpuCore,ram,vRam,graphicsController,network,storageType,storageSize,storageName,storageBootable,osImageName)
 
     def delete(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('vmName', type=str)
-        
-        vmName = parser.parse_args()['vmName']
+        json_data = request.get_json(force=True)
 
-        if vmName in getListVM() or vmName is None:
-            deleteVm(vmName)
+        if json_data["vmName"] in getListVM() and json_data["vmName"] is not None:
+           try:
+               deleteVm(json_data["vmName"])
+               return {},201
+           except:
+               return {},500
+        else:
+            return {"error":"vm does not exist \
+                 or vm name is empty"}, 400
 
     def patch(self):
         json_data = request.get_json(force=True)
-        
         if json_data["vmName"] in getListVM() and json_data["vmName"] is not None:
-            modifyVM(json_data)  
+           try:
+               modifyVM(json_data)  
+               return {},201
+           except:
+               return {},500
+        else:
+            return {"error":"vm does not exist \
+                 or vm name is empty"}, 400

@@ -1,12 +1,16 @@
-from app import app
-from flask import Flask, jsonify, request
-from flask_restful import Api, Resource, reqparse, abort
-from app.services.vm import powerOn, getListVM, clone
-from app.config import Config
-
+from flask import request
+from flask_restful import Resource
+from app.services.vm import powerOn, getListVM
 
 class powerOnVM(Resource):
     def post(self):
         json_data = request.get_json(force=True)
         if json_data["vmName"] in getListVM() and json_data["vmName"] is not None:
-           powerOn(json_data["vmName"])
+            try:
+                powerOn(json_data["vmName"])
+                return {},200
+            except:
+                return {},500
+        else:
+            return {"error":"vm does not exist \
+                 or vm name is empty"}, 400

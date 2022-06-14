@@ -12,7 +12,7 @@ def createHardDisk(vmName,storageSize,storageType):
                              access_mode= virtualbox.library.AccessMode.read_write,
                              a_device_type_type=virtualbox.library.DeviceType.hard_disk)
 
-    disk.create_base_storage(storageSize*1024,[virtualbox.library.MediumVariant(Config.storageType.get(storageType))])
+    disk.create_base_storage(storageSize*1024*1000000,[virtualbox.library.MediumVariant(Config.storageType.get(storageType))])
 
     return disk
 

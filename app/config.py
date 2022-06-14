@@ -1,7 +1,7 @@
 class Config(object):
     maxCpu = 4
     maxRam = 8000
-    maxStorage = 15000
+    maxStorage = 15*100000
     maxVRam = 128
     vmPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\vm\\"
     systemsPath = "C:\\Users\\Gabichus\\Desktop\\Disertatie\\systems"

@@ -1,8 +1,6 @@
-from app import app
-from flask import Flask, jsonify, request
-from flask_restful import Api, Resource, reqparse, abort
+from flask import request
+from flask_restful import Resource
 from app.services.vm import getExportedVM, getListVM, export
-from app.config import Config
 
 class exportVM(Resource):
     def post(self):
@@ -17,4 +15,5 @@ class exportVM(Resource):
             else:
                 return {"error":"already exist"}, 409
         else:
-            return {"error":"vm not found"}, 406
+            return {"error":"vm does not exist \
+                 or vm name is empty"}, 400
